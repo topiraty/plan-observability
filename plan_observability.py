@@ -21,25 +21,25 @@ if LST_end_hrs > 24:
     LST_end_hrs  -= 24
 
 def lst_hrs_to_time(lst_hrs):
-    hr_print  = '{:2.d}'.format( int(np.floor(lst_hrs)) )
-    min_print = '{:2.d}'.format( int(np.floor((lst_hrs - np.floor(lst_hrs)) * 60)) )
+    hr_print  = '{:02d}'.format( int(np.floor(lst_hrs)) )
+    min_print = '{:02d}'.format( int(np.floor((lst_hrs - np.floor(lst_hrs)) * 60)) )
     LST_time = [hr_print, min_print]
     return LST_time
 
 LST_start = lst_hrs_to_time(LST_start_hrs)
 LST_end = lst_hrs_to_time(LST_end_hrs)
-print(f"LST: [{LST_start[0]}:{LST_start[1]}; {LST_end[0]}:{LST_end[1]}] for observation night ({d-1}-){date}")
+print(f"LST: [{LST_start[0]}:{LST_start[1]} - {LST_end[0]}:{LST_end[1]}] for observation night ({d-1}-){date}\n")
 
 with open("observables.csv", newline='') as savefile:
     targets = csv.reader(savefile, delimiter=',')
     plt.figure()
-    i = -1
+    i = 1
     for target in targets:
         name = target[0]
         bname  = target[1]
         RA_hrs = float(target[2]) + float(target[3]) / 60.0 + float(target[4]) / 3600.0
         dec_degs = float(target[5]) + float(target[6]) * 0.0167  # arcmin->degs
-        print(f"{name},\tRA={RA_hrs},  dec={dec_degs}")
+        print(f"{'{:2d}'.format(i)}) {name},\tRA={RA_hrs},  dec={dec_degs}")
 
         # Moving onto source specific calcs
         RA = RA_hrs
@@ -103,11 +103,7 @@ with open("observables.csv", newline='') as savefile:
             LST_rise_time = lst_hrs_to_time(LST_r)
             LST_sets_time = lst_hrs_to_time(LST_s)
             if prints:
-                print(f"LST of rise [{LST_rise_time[0]}:{LST_rise_time[1]}; {LST_rise_time[0]}:{LST_rise_time[1]}]"
-                      + f" = {LST_r}hrs")
-                print(f"LST of setting [{LST_sets_time[0]}:{LST_sets_time[1]}; {LST_sets_time[0]}:{LST_sets_time[1]}]"
-                      + f" = {LST_s}hrs")
-
+                print(f"LST of observability [{LST_rise_time[0]}:{LST_rise_time[1]} - {LST_sets_time[0]}:{LST_sets_time[1]}]")
             return LST_r, LST_s
 
         LST_rise, LST_sets = lst_rise_set(RA, a_min, dec_degs, metsahovi_latitude)
@@ -132,7 +128,7 @@ with open("observables.csv", newline='') as savefile:
             LST = np.linspace(LST_rise, LST_sets, 10)
             plt.plot(LST, hline, 'white', label=f" over obs.limit {a_max}°", linewidth=7)
 
-        i -= 1
+        i += 1
 
 plt.autoscale()
 plt.grid()
