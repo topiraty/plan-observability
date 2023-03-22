@@ -8,7 +8,7 @@ start_hrs = 18
 end_hrs = 6
 date = "8.3.2023"
 d = int(float(date[0:2]))
-n = d - 21          # days to vernal equinox (21.3.), this works for march
+n = d - 21          # days to vernal equinox (21.3.), this works only in March :---D
 metsahovi_correction = -22.5    # min, correction to LST
 metsahovi_latitude = 60.2       # degrees
 a_min_primary = 40  # degrees, observability limit
@@ -21,7 +21,9 @@ if LST_end_hrs > 24:
     LST_end_hrs  -= 24
 
 def lst_hrs_to_time(lst_hrs):
-    LST_time = [int(np.floor(lst_hrs)), int(np.floor((lst_hrs - np.floor(lst_hrs)) * 60))]
+    hr_print  = '{:2.d}'.format( int(np.floor(lst_hrs)) )
+    min_print = '{:2.d}'.format( int(np.floor((lst_hrs - np.floor(lst_hrs)) * 60)) )
+    LST_time = [hr_print, min_print]
     return LST_time
 
 LST_start = lst_hrs_to_time(LST_start_hrs)
@@ -62,7 +64,8 @@ with open("observables.csv", newline='') as savefile:
         a_min = a_min_primary
         label = name
         frmt = '-'
-
+        
+        # Update a_min to 20° (observable in M.hovi South sector), if not observable over 40° (primary a_min)
         if not observable:
             a_min_secondary = 20
             observable = a_cul > a_min_secondary
@@ -115,6 +118,8 @@ with open("observables.csv", newline='') as savefile:
         LST   = np.linspace(LST_rise, LST_sets, 10)
         hline = np.linspace(i,        i,        10)
         plt.plot(LST,hline,frmt,label=label,linewidth=6)
+        
+        # Check if over observation limit 65°
         a_max = 65
         if a_cul > a_max:
             a_min = a_max
